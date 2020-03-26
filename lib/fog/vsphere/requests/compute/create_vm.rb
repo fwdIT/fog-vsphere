@@ -17,7 +17,12 @@ module Fog
             numCoresPerSocket: attributes[:corespersocket],
             memoryMB: attributes[:memory_mb],
             deviceChange: device_change(attributes),
-            extraConfig: extra_config(attributes)
+            ## START - VDAB CUSTOM ADJUSTMENT #########################################################################################################################
+            #extraConfig: extra_config(attributes)
+            extraConfig: extra_config(attributes),
+            # no vm logging at request of Jef
+            flags: { enableLogging: false },
+            ## STOP - VDAB CUSTOM ADJUSTMENT ##########################################################################################################################
           }
           vm_cfg[:cpuHotAddEnabled] = attributes[:cpuHotAddEnabled] if attributes.key?(:cpuHotAddEnabled)
           vm_cfg[:memoryHotAddEnabled] = attributes[:memoryHotAddEnabled] if attributes.key?(:memoryHotAddEnabled)
@@ -325,6 +330,10 @@ module Fog
 
         def extra_config(attributes)
           extra_config = attributes[:extra_config] || { 'bios.bootOrder' => 'ethernet0' }
+          ## START - VDAB CUSTOM ADJUSTMENT #########################################################################################################################
+          # svga option prevents foreman loosing link with vm - # TESTME: first use commented, perhaps not needed anymore in current foreman versions
+          #extra_config['svga.autodetect'] = "TRUE"
+          ## STOP - VDAB CUSTOM ADJUSTMENT ##########################################################################################################################
           extra_config.map { |k, v| { key: k, value: v.to_s } }
         end
       end
